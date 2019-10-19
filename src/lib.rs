@@ -1,20 +1,17 @@
 #![forbid(unsafe_code)]
-extern crate chrono;
-extern crate serde;
-extern crate serde_json;
+
 pub mod models;
-pub mod neural;
 pub mod utils;
 
 use chrono::{ DateTime, FixedOffset };
 use models::{ Club, Clubs, Match, DataEntry };
-use neural::nn::{ HaltCondition, NN };
-use utils::normalize;
+use nn::{ HaltCondition, NN };
 use std::{
     collections::{ HashMap, HashSet },
     convert::TryInto,
     fmt,
 };
+use utils::normalize;
 
 const AWAY_FACTOR: f64 = 1.0;
 
@@ -354,9 +351,8 @@ impl Default for Stats {
 /// the u8 is the max value used to set the upper limit for a normalization function
 impl <T: Generator>From<(&Match, &Clubs, u8, &mut T)> for DataEntry {
     fn from(from: (&Match, &Clubs, u8, &mut T) ) -> Self {
-        let inputs = from.3.generate(from.0);
         DataEntry {
-            inputs,
+            inputs: from.3.generate(from.0),
             outputs: vec![
                 normalize(f64::from(from.0.result.unwrap()[0]), 0f64, from.2.into()),
                 normalize(f64::from(from.0.result.unwrap()[1]), 0f64, from.2.into())
